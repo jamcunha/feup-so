@@ -21,6 +21,12 @@ int main (int argc, char *argv[]) {
         fseek(fd, rand * sizeof(char), SEEK_SET);
         fread(str, sizeof(char), atoi(argv[3]), fd);
 
+        for(int j = 0; j < atoi(argv[3]); j++) {
+            if(str[j] == '\n' || str[j] == '\t' || str[j] == '\r') {
+                str[j] = ' ';
+            }
+        }
+
         printf(">%s<\n", str);
         fseek(fd, 0, SEEK_SET);
     }

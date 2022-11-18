@@ -4,7 +4,7 @@
 
 int main (int argc, char *argv[]) {
     /* check if arguments are present */
-    if(argc < 2) {
+    if(argc != 4) {
         printf("usage: samples file numberfrags maxfragsize\n");
         return EXIT_FAILURE;
     }

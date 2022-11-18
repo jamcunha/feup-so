@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -pedantic
 
-samples:
+txt2epub:
 	@$(CC) txt2epub.c $(CFLAGS) -o txt2epub
 
 clean:

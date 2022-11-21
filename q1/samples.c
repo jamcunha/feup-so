@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 int main (int argc, char *argv[]) {
     /* check if arguments are present */
@@ -12,6 +13,10 @@ int main (int argc, char *argv[]) {
     srandom(0);
     char *str = (char*)malloc((atoi(argv[3])+1) * sizeof(char));
     FILE *fd = fopen(argv[1], "r");
+    if(fd == NULL) {
+        fprintf(stderr, "%s: cannot open %s: %s\n", argv[0], argv[1], strerror(errno));
+        return EXIT_FAILURE;
+    }
     fseek(fd, 0, SEEK_END);
     int file_size = ftell(fd) / sizeof(char);
     fseek(fd, 0, SEEK_SET);

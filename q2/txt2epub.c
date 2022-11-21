@@ -57,7 +57,7 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     } else if(pid == 0) {
-        system("zip ebooks.zip *.epub");
+        system("zip ebooks.zip *.epub >> /dev/null");
         if(system("zip ebooks.zip *.epub") < 0) {
             fprintf(stderr, "%s: couldn't compress epub files: %s\n", argv[0], strerror(errno));
             return EXIT_FAILURE;

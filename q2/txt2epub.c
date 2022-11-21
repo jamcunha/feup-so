@@ -27,15 +27,8 @@ int main (int argc, char *argv[]) {
             epub[strlen(epub)-4] = '\0';
             strcat(epub, epub_ext);
 
-            /* adding pandoc args to an array to use execvp */
-            char **exec = (char**)malloc(5 * sizeof(char*));
-            exec[0] = "pandoc";
-            exec[1] = argv[i];
-            exec[2] = "-o";
-            exec[3] = epub;
-            exec[4] = NULL;
-
-            execvp(exec[0], exec);
+            /* executing pandoc */
+            execlp("pandoc", "pandoc", argv[i], "-o", epub, "--quiet", NULL);
 
             /* execvp error */
             fprintf(stderr, "%s: couldn't convert file to epub: %s\n", argv[0], strerror(errno));
@@ -57,7 +50,7 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     } else if(pid == 0) {
-        system("zip ebooks.zip *.epub >> /dev/null");
+        system("zip ebooks.zip *.epub --quiet");
         if(system("zip ebooks.zip *.epub") < 0) {
             fprintf(stderr, "%s: couldn't compress epub files: %s\n", argv[0], strerror(errno));
             return EXIT_FAILURE;

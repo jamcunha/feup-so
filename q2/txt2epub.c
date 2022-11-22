@@ -13,6 +13,16 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    /* store epubs names */
+    char *epubs[argc-1];
+    char *epub_ext = ".epub";
+    for(int i = 1; i < argc; i++) {
+        epubs[i-1] = (char*)malloc((strlen(argv[i])+1) * sizeof(char));
+        strcpy(epubs[i-1], argv[i]);
+        epubs[i-1][strlen(epubs[i-1])-4] = '\0';
+        strcat(epubs[i-1], epub_ext);
+    }
+
     pid_t pids[argc-1];
     for(int i = 1; i < argc; i++) {
         if((pids[i-1] = fork()) < 0) {
@@ -21,16 +31,10 @@ int main (int argc, char *argv[]) {
         } else if(pids[i-1] == 0) {
             printf("[pid%d] converting %s ...\n", getpid(), argv[i]);
 
-            char *epub_ext = ".epub";
-            char *epub = (char*)malloc(strlen(argv[i])+1);
-            strcpy(epub, argv[i]);
-            epub[strlen(epub)-4] = '\0';
-            strcat(epub, epub_ext);
-
             /* executing pandoc */
-            execlp("pandoc", "pandoc", argv[i], "-o", epub, "--quiet", NULL);
+            execlp("pandoc", "pandoc", argv[i], "-o", epubs[i-1], "--quiet", NULL);
 
-            /* execvp error */
+            /* execlp error */
             fprintf(stderr, "%s: couldn't convert file to epub: %s\n", argv[0], strerror(errno));
             exit(EXIT_FAILURE);
         }
@@ -50,11 +54,21 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     } else if(pid == 0) {
-        system("zip ebooks.zip *.epub --quiet");
-        if(system("zip ebooks.zip *.epub") < 0) {
-            fprintf(stderr, "%s: couldn't compress epub files: %s\n", argv[0], strerror(errno));
-            return EXIT_FAILURE;
+        char *zip[argc+4];
+        zip[0] = "zip";
+        zip[1] = "ebooks.zip";
+        for(int i = 0; i < argc-1; i++) {
+            zip[i+2] = malloc((strlen(epubs[i])+1) * sizeof(char));
+            strcpy(zip[i+2], epubs[i]);
         }
+        zip[argc+2] = "--quiet";
+        zip[argc+3] = NULL;
+
+        execvp(zip[0], zip);
+
+        /* execvp error */
+        fprintf(stderr, "%s: couldn't compress epub files: %s\n", argv[0], strerror(errno));
+        exit(EXIT_FAILURE);
     } else {
         if(waitpid(pid, NULL, 0) < 0) {
             fprintf(stderr, "%s: waitpid error: %s\n", argv[0], strerror(errno));

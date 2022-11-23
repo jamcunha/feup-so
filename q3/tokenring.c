@@ -49,9 +49,26 @@ int main (int argc, char *argv[]) {
                 sprintf(read_pipe, "pipe%dto%d", i-1, i);
             }
 
+            /* store pipes in an array */
+            int fd[2];
+
+            if(i == 1) {
+                if((fd[1] = open(write_pipe, O_WRONLY)) < 0) {
+                    fprintf(stderr, "%s: pipe opening error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                val++;
+
+                if(write(fd[1], &val, sizeof(int)) < 0) {
+                    fprintf(stderr, "%s: write error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                close(fd[1]);
+            }
+
             for(;;) {
-                /* store pipes in an array */
-                int fd[2];
 
                 /* read value from previous process */
                 if((fd[0] = open(read_pipe, O_RDONLY)) < 0) {

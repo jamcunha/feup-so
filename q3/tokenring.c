@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <time.h>
+
 int main (int argc, char *argv[]) {
     /* check number of args */
     if(argc != 4) {
@@ -29,10 +31,6 @@ int main (int argc, char *argv[]) {
     free(loc);
 
     int prob = 1 / atof(argv[2]);
-    srandom(0);
-
-    printf("%d\n", prob);
-
     int val = 0;
 
     pid_t pids[atoi(argv[1])];
@@ -53,6 +51,8 @@ int main (int argc, char *argv[]) {
                 sprintf(write_pipe, "pipe%dto%d", i, i+1);
                 sprintf(read_pipe, "pipe%dto%d", i-1, i);
             }
+
+            srandom(time(NULL) - i * 2);
 
             /* store pipes in an array */
             int fd[2];

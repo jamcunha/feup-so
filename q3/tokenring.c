@@ -28,6 +28,11 @@ int main (int argc, char *argv[]) {
     }
     free(loc);
 
+    int prob = 1 / atof(argv[2]);
+    srandom(0);
+
+    printf("%d\n", prob);
+
     int val = 0;
 
     pid_t pids[atoi(argv[1])];
@@ -85,13 +90,12 @@ int main (int argc, char *argv[]) {
 
                 val++; // increments value
                 
-                /*
-                if(lock) {
+                int rand = random() % prob;
+                if(rand == 1) {
                     printf("[p%d] lock on token (val = %d)\n", i, val);
                     sleep(atoi(argv[3]));
                     printf("[p%d] unlock token\n", i);
                 }
-                */
 
                 /* writes value to next process */
                 if((fd[1] = open(write_pipe, O_WRONLY)) < 0) {

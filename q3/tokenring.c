@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <errno.h>
 
 int main (int argc, char *argv[]) {
@@ -20,28 +21,73 @@ int main (int argc, char *argv[]) {
         else
             sprintf(loc, "pipe%dto%d", i, i+1);
 
-        mkfifo(loc, 666);
-        
-        loc[0] = '\0';
+        if((mkfifo(loc, 0666)) < 0) {
+            fprintf(stderr, "%s: mkfifo error: %s", argv[0], strerror(errno));
+            exit(EXIT_FAILURE);
+        }
     }
     free(loc);
 
+    int val = 0;
+
     pid_t pids[atoi(argv[1])];
-    char *write = (char*)malloc(50 * sizeof(char));
-    char *read = (char*)malloc(50 * sizeof(char));
+    char *write_pipe = (char*)malloc(50 * sizeof(char));
+    char *read_pipe = (char*)malloc(50 * sizeof(char));
     for(int i = 1; i <= atoi(argv[1]); i++) {
         if((pids[i-1] = fork()) < 0) {
             fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
             exit(EXIT_FAILURE);
         } else if(pids[i-1] == 0) {
-            if(i == atoi(argv[1]))
-                sprintf(loc, "pipe%dto1", i);
-            else
-                sprintf(loc, "pipe%dto%d", i, i+1);
-            printf("child %d: loc - %s\n", i, loc);
+            if(i == atoi(argv[1])) {
+                sprintf(write_pipe, "pipe%dto1", i);
+                sprintf(read_pipe, "pipe%dto%d", i-1, i);
+            } else if(i == 1) {
+                sprintf(write_pipe, "pipe%dto%d", i, i+1);
+                sprintf(read_pipe, "pipe%dto1", atoi(argv[1]));
+            } else {
+                sprintf(write_pipe, "pipe%dto%d", i, i+1);
+                sprintf(read_pipe, "pipe%dto%d", i-1, i);
+            }
 
             for(;;) {
-                continue;
+                /* store pipes in an array */
+                int fd[2];
+
+                /* read value from previous process */
+                if((fd[0] = open(read_pipe, O_RDONLY)) < 0) {
+                    fprintf(stderr, "%s: pipe opening error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                if(read(fd[0], &val, sizeof(int)) < 0) {
+                    fprintf(stderr, "%s: read error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                close(fd[0]);
+
+                val++; // increments value
+                
+                /*
+                if(lock) {
+                    printf("[p%d] lock on token (val = %d)\n", i, val);
+                    sleep(atoi(argv[3]));
+                    printf("[p%d] unlock token\n", i);
+                }
+                */
+
+                /* writes value to next process */
+                if((fd[1] = open(write_pipe, O_WRONLY)) < 0) {
+                    fprintf(stderr, "%s: pipe opening error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+                
+                if(write(fd[1], &val, sizeof(int)) < 0) {
+                    fprintf(stderr, "%s: write error: %s\n", argv[0], strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                close(fd[1]);
             }
 
             exit(EXIT_SUCCESS);

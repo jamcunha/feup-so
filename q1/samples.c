@@ -27,7 +27,7 @@ int main (int argc, char *argv[]) {
         fread(str, sizeof(char), atoi(argv[3]), fd);
 
         for(int j = 0; j < atoi(argv[3]); j++) {
-            if(str[j] == '\n' || str[j] == '\t' || str[j] == '\r') {
+            if(str[j] < ' ' || str[j] > '~') {
                 str[j] = ' ';
             }
         }

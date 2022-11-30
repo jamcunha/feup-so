@@ -27,7 +27,7 @@ int main (int argc, char *argv[]) {
             sprintf(loc, "pipe%dto%d", i, i+1);
 
         if((mkfifo(loc, 0666)) < 0) {
-            fprintf(stderr, "%s: mkfifo error: %s", argv[0], strerror(errno));
+            fprintf(stderr, "%s: mkfifo error: %s\n", argv[0], strerror(errno));
             exit(EXIT_FAILURE);
         }
     }

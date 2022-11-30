@@ -54,7 +54,7 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     } else if(pid == 0) {
-        char *zip[argc+4];
+        char *zip[argc+3];
         zip[0] = "zip";
         zip[1] = "ebooks.zip";
         for(int i = 0; i < argc-1; i++) {

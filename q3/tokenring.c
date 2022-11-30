@@ -7,12 +7,15 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <time.h>
-
 int main (int argc, char *argv[]) {
     /* check number of args */
     if(argc != 4) {
         printf("usage: tokenring number_process probability number_seconds\n");
+        return EXIT_FAILURE;
+    }
+
+    if(atof(argv[2]) > 1 && atof(argv[2]) < 0) {
+        printf("probability must be between 0 and 1\n");
         return EXIT_FAILURE;
     }
 
@@ -52,7 +55,7 @@ int main (int argc, char *argv[]) {
                 sprintf(read_pipe, "pipe%dto%d", i-1, i);
             }
 
-            srandom(time(NULL) - i * 2);
+            srandom(getpid());
 
             /* store pipes in an array */
             int fd[2];

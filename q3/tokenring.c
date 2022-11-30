@@ -35,7 +35,6 @@ int main (int argc, char *argv[]) {
     }
     free(loc);
 
-    int prob = 1 / atof(argv[2]);
     int val = 0;
 
     /* create processes */
@@ -101,8 +100,8 @@ int main (int argc, char *argv[]) {
                 val++; // increments value
                 
                 /* randlomly lock according to a probability */
-                int rand = random() % prob;
-                if(rand == 1) {
+                int rand = random() % 100;
+                if(rand < 100 * atof(argv[2])) {
                     printf("[p%d] lock on token (val = %d)\n", i, val);
                     sleep(atoi(argv[3]));
                     printf("[p%d] unlock token\n", i);

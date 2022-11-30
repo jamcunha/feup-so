@@ -25,10 +25,10 @@ int main (int argc, char *argv[]) {
 
     pid_t pids[argc-1];
     for(int i = 1; i < argc; i++) {
-        if((pids[i-1] = fork()) < 0) {
+        if((pids[i-1] = fork()) < 0) { // check for fork errors
             fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
             exit(EXIT_FAILURE);
-        } else if(pids[i-1] == 0) {
+        } else if(pids[i-1] == 0) { // child
             printf("[pid%d] converting %s ...\n", getpid(), argv[i]);
 
             /* executing pandoc */
@@ -50,26 +50,31 @@ int main (int argc, char *argv[]) {
 
     /* zip epubs */
     pid_t pid;
-    if((pid = fork()) < 0) {
+    if((pid = fork()) < 0) { // check for fork errors
         fprintf(stderr, "%s: fork error: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
-    } else if(pid == 0) {
+    } else if(pid == 0) { // child
         char *zip[argc+3];
         zip[0] = "zip";
         zip[1] = "ebooks.zip";
+
+        /* store epubs names in zip array */
         for(int i = 0; i < argc-1; i++) {
             zip[i+2] = malloc((strlen(epubs[i])+1) * sizeof(char));
             strcpy(zip[i+2], epubs[i]);
         }
+
         zip[argc+2] = "--quiet";
         zip[argc+3] = NULL;
 
+        /* executing zip */
         execvp(zip[0], zip);
 
         /* execvp error */
         fprintf(stderr, "%s: couldn't compress epub files: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     } else {
+        /* wait for child to end */
         if(waitpid(pid, NULL, 0) < 0) {
             fprintf(stderr, "%s: waitpid error: %s\n", argv[0], strerror(errno));
             return EXIT_FAILURE;

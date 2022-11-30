@@ -11,21 +11,28 @@ int main (int argc, char *argv[]) {
     }
 
     srandom(0);
+    /* alloc a string with maxfragsize as size */
     char *str = (char*)malloc((atoi(argv[3])+1) * sizeof(char));
     FILE *fd = fopen(argv[1], "r");
+    /* check if fopen has errors */
     if(fd == NULL) {
         fprintf(stderr, "%s: cannot open %s: %s\n", argv[0], argv[1], strerror(errno));
         return EXIT_FAILURE;
     }
+
+    /* get number of bytes in the file */
     fseek(fd, 0, SEEK_END);
     int file_size = ftell(fd) / sizeof(char);
     fseek(fd, 0, SEEK_SET);
+
+    /* print frags */
     for(int i = 0; i < atoi(argv[2]); i++) {
         int rand = random() % file_size;
 
-        fseek(fd, rand * sizeof(char), SEEK_SET);
-        fread(str, sizeof(char), atoi(argv[3]), fd);
+        fseek(fd, rand * sizeof(char), SEEK_SET); // set fd to be in a random position
+        fread(str, sizeof(char), atoi(argv[3]), fd); // store maxfragsize size of the file in the string
 
+        /* replace ASCII characters from 0 to 31 and 127 onwards with a space */
         for(int j = 0; j < atoi(argv[3]); j++) {
             if(str[j] < ' ' || str[j] > '~') {
                 str[j] = ' ';
@@ -33,7 +40,7 @@ int main (int argc, char *argv[]) {
         }
 
         printf(">%s<\n", str);
-        fseek(fd, 0, SEEK_SET);
+        fseek(fd, 0, SEEK_SET); // return file to the beginning
     }
     fclose(fd);
 

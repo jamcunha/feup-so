@@ -13,6 +13,17 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    /* check if all files exists */
+    FILE *fd;
+    for(int i = 1; i < argc; i++) {
+        fd = fopen(argv[i], "r");
+        if(fd == NULL) {
+            fprintf(stderr, "%s: file %s doesn't exist\n", argv[0], argv[i]);
+            exit(EXIT_FAILURE);
+        }
+        fclose(fd);
+    }
+
     /* store epubs names */
     char *epubs[argc-1];
     char *epub_ext = ".epub";

@@ -14,9 +14,21 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* check if probablitity is between 0 and 1 */
+    /* check if probablitity is between zero and one */
     if(atof(argv[2]) > 1 && atof(argv[2]) < 0) {
         printf("probability must be between 0 and 1\n");
+        return EXIT_FAILURE;
+    }
+
+    /* check if number of processes is more than one */
+    if(atoi(argv[1]) < 2) {
+        printf("must have more than one process\n");
+        return EXIT_FAILURE;
+    }
+
+    /* check if number of seconds is a positive number */
+    if(atoi(argv[3]) < 0) {
+        printf("number of seconds must be positive\n");
         return EXIT_FAILURE;
     }
 
@@ -35,7 +47,7 @@ int main (int argc, char *argv[]) {
     }
     free(loc);
 
-    int val = 0;
+    int token = 0;
 
     /* create processes */
     pid_t pids[atoi(argv[1])];
@@ -71,10 +83,10 @@ int main (int argc, char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
 
-                val++; // increments value
+                token++; // increments value
 
                 /* write value to pipe */
-                if(write(fd[1], &val, sizeof(int)) < 0) {
+                if(write(fd[1], &token, sizeof(int)) < 0) {
                     fprintf(stderr, "%s: write error: %s\n", argv[0], strerror(errno));
                     exit(EXIT_FAILURE);
                 }
@@ -90,19 +102,19 @@ int main (int argc, char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
 
-                if(read(fd[0], &val, sizeof(int)) < 0) {
+                if(read(fd[0], &token, sizeof(int)) < 0) {
                     fprintf(stderr, "%s: read error: %s\n", argv[0], strerror(errno));
                     exit(EXIT_FAILURE);
                 }
 
                 close(fd[0]);
 
-                val++; // increments value
+                token++; // increments value
                 
                 /* randlomly lock according to a probability */
                 int rand = random() % 100;
                 if(rand < 100 * atof(argv[2])) {
-                    printf("[p%d] lock on token (val = %d)\n", i, val);
+                    printf("[p%d] lock on token (val = %d)\n", i, token);
                     sleep(atoi(argv[3]));
                     printf("[p%d] unlock token\n", i);
                 }
@@ -113,7 +125,7 @@ int main (int argc, char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
                 
-                if(write(fd[1], &val, sizeof(int)) < 0) {
+                if(write(fd[1], &token, sizeof(int)) < 0) {
                     fprintf(stderr, "%s: write error: %s\n", argv[0], strerror(errno));
                     exit(EXIT_FAILURE);
                 }

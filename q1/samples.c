@@ -10,9 +10,6 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    srandom(0);
-    /* alloc a string with maxfragsize as size */
-    char *str = (char*)malloc((atoi(argv[3])+1) * sizeof(char));
     FILE *fd = fopen(argv[1], "r");
     /* check if fopen has errors */
     if(fd == NULL) {
@@ -25,10 +22,19 @@ int main (int argc, char *argv[]) {
     int file_size = ftell(fd) / sizeof(char);
     fseek(fd, 0, SEEK_SET);
 
-    /* print frags */
-    for(int i = 0; i < atoi(argv[2]); i++) {
-        int rand = random() % file_size;
+    /* check if max fragment size is larger than the file */
+    if(atoi(argv[3]) > file_size) {
+        printf("maxfragsize larger than file\n");
+        return EXIT_FAILURE;
+    }
 
+    /* alloc a string with maxfragsize as size */
+    char *str = (char*)malloc((atoi(argv[3])+1) * sizeof(char));
+
+    /* print fragments */
+    srandom(0);
+    for(int i = 0; i < atoi(argv[2]); i++) {
+        int rand = random() % (file_size - atoi(argv[3]));
         fseek(fd, rand * sizeof(char), SEEK_SET); // set fd to be in a random position
         fread(str, sizeof(char), atoi(argv[3]), fd); // store maxfragsize size of the file in the string
 
@@ -40,7 +46,7 @@ int main (int argc, char *argv[]) {
         }
 
         printf(">%s<\n", str);
-        fseek(fd, 0, SEEK_SET); // return file to the beginning
+        fseek(fd, 0, SEEK_SET); // return stream to the beginning of the file
     }
     fclose(fd);
 

@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <limits.h>
 
 int main (int argc, char *argv[]) {
     /* check number of args */
@@ -83,7 +84,11 @@ int main (int argc, char *argv[]) {
                     exit(EXIT_FAILURE);
                 }
 
-                token++; // increments value
+                /* end the program if token is the maximum integer value */
+                if(token == INT_MAX)
+                    exit(EXIT_SUCCESS);
+                else
+                    token++; // increments value
 
                 /* write value to pipe */
                 if(write(fd[1], &token, sizeof(int)) < 0) {
@@ -144,6 +149,8 @@ int main (int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     }
+
+    printf("Reached max limit of an integer. Exiting the program\n");
 
     return EXIT_SUCCESS;
 }

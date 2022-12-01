@@ -6,7 +6,7 @@
 int main (int argc, char *argv[]) {
     /* check if arguments are present */
     if(argc != 4) {
-        printf("usage: samples file numberfrags maxfragsize\n");
+        fprintf(stderr, "usage: samples file numberfrags maxfragsize\n");
         return EXIT_FAILURE;
     }
 
@@ -24,7 +24,7 @@ int main (int argc, char *argv[]) {
 
     /* check if max fragment size is larger than the file */
     if(atoi(argv[3]) > file_size) {
-        printf("maxfragsize larger than file\n");
+        fprintf(stderr, "maxfragsize larger than file\n");
         return EXIT_FAILURE;
     }
 
@@ -34,6 +34,7 @@ int main (int argc, char *argv[]) {
     /* print fragments */
     srandom(0);
     for(int i = 0; i < atoi(argv[2]); i++) {
+        /* never start reading from a place where it doesn't have enough characters to fill maxfragsize */
         int rand = random() % (file_size - atoi(argv[3]));
         fseek(fd, rand * sizeof(char), SEEK_SET); // set fd to be in a random position
         fread(str, sizeof(char), atoi(argv[3]), fd); // store maxfragsize size of the file in the string

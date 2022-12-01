@@ -10,25 +10,25 @@
 int main (int argc, char *argv[]) {
     /* check number of args */
     if(argc != 4) {
-        printf("usage: tokenring number_process probability number_seconds\n");
+        fprintf(stderr, "usage: tokenring number_process probability number_seconds\n");
         return EXIT_FAILURE;
     }
 
     /* check if probablitity is between zero and one */
     if(atof(argv[2]) > 1 && atof(argv[2]) < 0) {
-        printf("probability must be between 0 and 1\n");
+        fprintf(stderr, "probability must be between 0 and 1\n");
         return EXIT_FAILURE;
     }
 
     /* check if number of processes is more than one */
     if(atoi(argv[1]) < 2) {
-        printf("must have more than one process\n");
+        fprintf(stderr, "must have more than one process\n");
         return EXIT_FAILURE;
     }
 
     /* check if number of seconds is a positive number */
     if(atoi(argv[3]) < 0) {
-        printf("number of seconds must be positive\n");
+        fprintf(stderr, "number of seconds must be positive\n");
         return EXIT_FAILURE;
     }
 

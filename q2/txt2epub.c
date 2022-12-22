@@ -28,7 +28,7 @@ int main (int argc, char *argv[]) {
     char *epubs[argc-1];
     char *epub_ext = ".epub";
     for(int i = 1; i < argc; i++) {
-        epubs[i-1] = (char*)malloc((strlen(argv[i])+1) * sizeof(char));
+        epubs[i-1] = (char*)malloc((strlen(argv[i])+2) * sizeof(char));
         strcpy(epubs[i-1], argv[i]);
         epubs[i-1][strlen(epubs[i-1])-4] = '\0';
         strcat(epubs[i-1], epub_ext);
